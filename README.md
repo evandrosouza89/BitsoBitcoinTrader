@@ -31,6 +31,7 @@ d. DOWN -> UP -> DOWN -> DOWN = 2 downticks
 - M Value: Trading bot consecutive upticks that will trigger a sell trade.
 - N Value: Trading bot consecutive downticks that will trigger a buy trade.
 
+## Notes
 
 **IMPORTANT NOTE 1**
 Bitso's websocket API uses a self-signed certificate, in order to run this software you will need to import it to your JDK/JRE.
@@ -42,6 +43,6 @@ If you want to compile this code you will need to setup Lombok framework in your
 
 https://projectlombok.org/setup/
 
-## Screens
+## Screen
 
 ![alt text](https://preview.ibb.co/hqQPvm/Screenshot1.png)
