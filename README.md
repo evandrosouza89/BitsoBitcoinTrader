@@ -10,7 +10,7 @@ This is a Bitso (https://bitso.com) bitcoin trader API sample client. It is buil
 
 ## About:
 
-This software have a trade bot that will update the UI when it would have traded if this were in a live, production trading strategy. This
+This software has a trade bot that will update the UI when it would have traded if this were in a live, production trading strategy. This
 strategy will work by counting the M consecutive upticks and N consecutive downticks. A trade that executes at a price that is the same as the price of the trade that executed immediately preceding it is known as a “zero tick”. 
 
 An uptick is when a trade executes at a higher price than the most recent non-zero-tick trade before it. 
