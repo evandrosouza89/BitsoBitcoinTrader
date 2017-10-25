@@ -1,0 +1,12 @@
+package com.evandro.challenges.bitcointrader.controller.service.json.elements.websocket.commands;
+
+import com.evandro.challenges.bitcointrader.controller.service.json.elements.commons.BookTypeMessage;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Command extends BookTypeMessage {
+
+    private String action;
+}

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.evandro.challenges.bitcointrader.view.controllers.MainController">
+    <children>
+        <VBox AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+            <children>
+                <MenuBar>
+                    <menus>
+                        <Menu text="Options">
+                            <items>
+                                <MenuItem fx:id="settingsMenuItem" text="Settings" />
+                                <MenuItem fx:id="closeMenuItem" text="Quit" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+                <VBox VBox.vgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="BASELINE_CENTER" >
+                            <children>
+                                <VBox HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Top Bids">
+                                            <font>
+                                                <Font size="31.0" />
+                                            </font>
+                                        </Label>
+                                        <TableView fx:id="topBidsTableView">
+                                            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                                            <columns>
+                                                <TableColumn fx:id="topBidsTimeTableColumn" sortable="false" text="Time" />
+                                                <TableColumn fx:id="topBidsRateTableColumn" sortable="false" text="Rate" />
+                                                <TableColumn fx:id="topBidsAmountTableColumn" sortable="false" text="Amount" />
+                                                <TableColumn fx:id="topBidsValueTableColumn" sortable="false" text="Value" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                    <padding>
+                                        <Insets right="10.0" />
+                                    </padding>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Top Asks">
+                                            <font>
+                                                <Font size="31.0" />
+                                            </font>
+                                        </Label>
+                                        <TableView fx:id="topAsksTableView">
+                                            <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                                            <columns>
+                                                <TableColumn fx:id="topAsksTimeTableColumn" sortable="false" text="Time" />
+                                                <TableColumn fx:id="topAsksRateTableColumn" sortable="false" text="Rate" />
+                                                <TableColumn fx:id="topAsksAmountTableColumn" sortable="false" text="Amount" />
+                                                <TableColumn fx:id="topAsksValueTableColumn" sortable="false" text="Value" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                    <padding>
+                                        <Insets left="10.0" />
+                                    </padding>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" />
+                            </padding>
+                        </HBox>
+                        <VBox VBox.vgrow="ALWAYS">
+                            <children>
+                                <Label text="Recent Trades">
+                                    <font>
+                                        <Font size="31.0" />
+                                    </font>
+                                </Label>
+                                <TableView fx:id="recentTradesTableView" VBox.vgrow="ALWAYS">
+                                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                                    <columns>
+                                        <TableColumn fx:id="recentTradesTimeTableColumn" sortable="false" text="Time" />
+                                        <TableColumn fx:id="recentTradesBookTableColumn" sortable="false" text="Book" />
+                                        <TableColumn fx:id="recentTradesMarkerSideTableColumn" sortable="false" text="Maker Side" />
+                                        <TableColumn fx:id="recentTradesPriceTableColumn" sortable="false" text="Price" />
+                                        <TableColumn fx:id="recentTradesAmountTableColumn" sortable="false" text="Amount" />
+                                        <TableColumn fx:id="recentTradesIdTableColumn" sortable="false" text="Id" />
+                                        <TableColumn fx:id="recentTradesBotTableColumn" sortable="false" text="Traded by Bot?"/>
+                                    </columns>
+                                </TableView>
+                            </children>
+                            <padding>
+                                <Insets top="10.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
