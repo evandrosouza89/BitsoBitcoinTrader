@@ -41,3 +41,7 @@ https://docs.oracle.com/javase/tutorial/security/toolsign/rstep2.html
 If you want to compile this code you will need to setup Lombok framework in your IDE:
 
 https://projectlombok.org/setup/
+
+- Screens
+
+![alt text](https://preview.ibb.co/hqQPvm/Screenshot1.png)
