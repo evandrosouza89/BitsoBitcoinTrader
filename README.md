@@ -31,8 +31,12 @@ Program settings:
 - M Value: Trading bot consecutive upticks that will trigger a sell trade.
 - N Value: Trading bot consecutive downticks that will trigger a buy trade.
 
-*****IMPORTANT*****
+*****IMPORTANT 1*****
 Bitso's websocket API uses a self-signed certificate, in order to run this software you will need to import it to your JDK/JRE.
 
 https://docs.oracle.com/javase/tutorial/security/toolsign/rstep2.html
 
+*****IMPORTANT 2*****
+If you want to compile this code you will need to setup Lombok framework in your IDE:
+
+https://projectlombok.org/setup/
