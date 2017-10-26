@@ -3,7 +3,7 @@ A Bitso API client sample built in JavaFX
 
 This is a Bitso (https://bitso.com) bitcoin trader API sample client. It is built upon Java 8 and JavaFX.
 
-## Frameworks:
+## Frameworks
 - Tyrus (https://tyrus-project.github.io/) as websocket client.
 - Lombok (https://projectlombok.org/) as code writing enhancer tool.
 - GSON (https://github.com/google/gson) as serialization/deserialization library to convert Java Objects into JSON and back.
@@ -11,7 +11,7 @@ This is a Bitso (https://bitso.com) bitcoin trader API sample client. It is buil
 ## How to run
 Download **app.rar**, extract files and execute **bitcointrader-1.0-SNAPSHOT-jfx.jar** (Java 8 required).
 
-## About:
+## About
 
 This software has a trade bot that will update the UI when it would have traded if this were in a live, production trading strategy. This
 strategy will work by counting the M consecutive upticks and N consecutive downticks. A trade that executes at a price that is the same as the price of the trade that executed immediately preceding it is known as a “zero tick”. 
@@ -28,7 +28,7 @@ b. UP -> DOWN -> UP = 1 uptick
 c. DOWN -> ZERO -> DOWN -> DOWN = 3 downticks
 d. DOWN -> UP -> DOWN -> DOWN = 2 downticks
 
-## Program settings:
+## Program settings
 
 - X Value: Number of top asks and bids to be shown.
 - M Value: Trading bot consecutive upticks that will trigger a sell trade.
