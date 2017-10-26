@@ -8,6 +8,9 @@ This is a Bitso (https://bitso.com) bitcoin trader API sample client. It is buil
 - Lombok (https://projectlombok.org/) as code writing enhancer tool.
 - GSON (https://github.com/google/gson) as serialization/deserialization library to convert Java Objects into JSON and back.
 
+## How to run
+Download **app.rar**, extract files and execute **bitcointrader-1.0-SNAPSHOT-jfx.jar** (Java 8 required).
+
 ## About:
 
 This software has a trade bot that will update the UI when it would have traded if this were in a live, production trading strategy. This
