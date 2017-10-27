@@ -1,7 +1,8 @@
-package com.evandro.challenges.bitcointrader.controller;
+package com.evandro.challenges.bitsobitcointrader.controller;
 
-import com.evandro.challenges.bitcointrader.controller.service.json.elements.rest.trades.Trade;
-import org.apache.commons.collections4.CollectionUtils;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades.Trade;
+import com.evandro.challenges.bitsobitcointrader.controller.utils.Utils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.time.ZoneOffset;
@@ -23,7 +24,7 @@ public class TradingStrategy extends Observable implements Observer {
 
     private Long lastTid;
 
-    private Queue output;
+    private Queue<Trade> output;
 
     public TradingStrategy(int m, int n) {
         this.m = m;
@@ -36,10 +37,10 @@ public class TradingStrategy extends Observable implements Observer {
         analyseTrades((List<Trade>) arg);
     }
 
-    private Trade buildTrade(String makerSide, String price) {
+    protected Trade buildTrade(String makerSide, String price) {
         Trade t = new Trade();
         t.setAmount("1.0");
-        t.setBook("btc_mxn");
+        t.setBook(EnumBook.BTC_MXN.toString());
 
         ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -54,11 +55,11 @@ public class TradingStrategy extends Observable implements Observer {
 
     private void analyseTrades(List<Trade> tradeList) {
         if (output == null) {
-            output = new CircularFifoQueue(tradeList.size());
+            output = new CircularFifoQueue<>(tradeList.size());
         }
         for (Trade t : tradeList) {
             if ((t.getPrice() != null && t.getTid() != null) &&
-                    (lastTid == null || (t.getTid() > lastTid.longValue()))) {
+                    (lastTid == null || (t.getTid() > lastTid))) {
                 output.add(t);
                 analyseTrade(t);
             }
@@ -69,13 +70,13 @@ public class TradingStrategy extends Observable implements Observer {
     private void analyseTrade(Trade t) {
         Double price = Double.valueOf(t.getPrice());
         if (lastPrice != null) {
-            if (price > lastPrice.doubleValue()) {
+            if (price > lastPrice) {
                 upTick++;
                 downTick = 0;
                 if (upTick >= m) {
                     output.add(buildTrade("sell", price.toString()));
                 }
-            } else if (price < lastPrice.doubleValue()) {
+            } else if (price < lastPrice) {
                 downTick++;
                 upTick = 0;
                 if (downTick >= n) {
@@ -89,8 +90,7 @@ public class TradingStrategy extends Observable implements Observer {
 
     private void generateOutput() {
         if (!output.isEmpty()) {
-            List<Trade> aux = new ArrayList<>();
-            CollectionUtils.addAll(aux, output);
+            List<Trade> aux = Utils.queueToList(output);
             Collections.reverse(aux);
             setChanged();
             notifyObservers(aux);

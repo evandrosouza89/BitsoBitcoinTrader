@@ -1,4 +1,4 @@
-package com.evandro.challenges.bitcointrader.controller.service.json.elements.rest.trades;
+package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;

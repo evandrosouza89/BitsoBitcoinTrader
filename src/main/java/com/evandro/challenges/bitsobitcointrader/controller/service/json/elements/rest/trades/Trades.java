@@ -1,6 +1,6 @@
-package com.evandro.challenges.bitcointrader.controller.service.json.elements.rest.trades;
+package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades;
 
-import com.evandro.challenges.bitcointrader.controller.service.json.elements.commons.SuccessPayloadMessageType;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.commons.SuccessPayloadMessageType;
 import lombok.Getter;
 import lombok.Setter;
 

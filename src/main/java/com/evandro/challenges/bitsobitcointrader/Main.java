@@ -1,9 +1,10 @@
-package com.evandro.challenges.bitcointrader;
+package com.evandro.challenges.bitsobitcointrader;
 
-import com.evandro.challenges.bitcointrader.controller.TradingStrategy;
-import com.evandro.challenges.bitcointrader.controller.service.WebSocketClient;
-import com.evandro.challenges.bitcointrader.controller.workers.RecentTradesWorker;
-import com.evandro.challenges.bitcointrader.controller.workers.TopOrdersWorker;
+import com.evandro.challenges.bitsobitcointrader.controller.TradingStrategy;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.service.WebSocketClient;
+import com.evandro.challenges.bitsobitcointrader.controller.workers.RecentTradesWorker;
+import com.evandro.challenges.bitsobitcointrader.controller.workers.TopOrdersWorker;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -23,7 +25,7 @@ public class Main extends Application {
 
     private final Logger logger = LogManager.getLogger();
 
-    private static final String WS_URI = "wss://ws.bitso.com";
+    public static final String WS_URI = "wss://ws.bitso.com";
 
     private static Main instance = null;
 
@@ -95,12 +97,16 @@ public class Main extends Application {
     }
 
     public void startWorkers(int m, int n, int x) {
-        tow = new TopOrdersWorker(clientEndPoint, "btc_mxn");
+        tow = new TopOrdersWorker(clientEndPoint, EnumBook.BTC_MXN.toString(), x);
         tow.addObserver(loader.getController());
         Thread t1 = new Thread(tow);
         t1.start();
 
-        rtw = new RecentTradesWorker("https://api.bitso.com/v3/trades/", "btc_mxn", x);
+        try {
+            rtw = new RecentTradesWorker("https://api.bitso.com/v3/trades/", EnumBook.BTC_MXN.toString(), x);
+        } catch (MalformedURLException e) {
+            logger.error(e);
+        }
 
         TradingStrategy tw = new TradingStrategy(m, n);
         tw.addObserver(loader.getController());

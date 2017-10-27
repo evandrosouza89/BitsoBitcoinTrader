@@ -1,4 +1,4 @@
-package com.evandro.challenges.bitcointrader.controller.service;
+package com.evandro.challenges.bitsobitcointrader.controller.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,10 +1,10 @@
-package com.evandro.challenges.bitcointrader.view.controllers;
+package com.evandro.challenges.bitsobitcointrader.view.controllers;
 
-import com.evandro.challenges.bitcointrader.controller.TradingStrategy;
-import com.evandro.challenges.bitcointrader.controller.service.json.elements.rest.trades.Trade;
-import com.evandro.challenges.bitcointrader.controller.service.json.elements.websocket.orders.Offer;
-import com.evandro.challenges.bitcointrader.controller.workers.TopOrdersWorker;
-import com.evandro.challenges.bitcointrader.Main;
+import com.evandro.challenges.bitsobitcointrader.Main;
+import com.evandro.challenges.bitsobitcointrader.controller.TradingStrategy;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades.Trade;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order;
+import com.evandro.challenges.bitsobitcointrader.controller.workers.TopOrdersWorker;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -22,37 +22,37 @@ import java.util.Observer;
 public class MainController implements Observer {
 
     @FXML
-    private TableView<Offer> topBidsTableView;
+    private TableView<Order> topBidsTableView;
 
     @FXML
-    private TableView<Offer> topAsksTableView;
+    private TableView<Order> topAsksTableView;
 
     @FXML
     private TableView<Trade> recentTradesTableView;
 
     @FXML
-    private TableColumn<Offer, String> topBidsTimeTableColumn;
+    private TableColumn<Order, String> topBidsTimeTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topBidsRateTableColumn;
+    private TableColumn<Order, String> topBidsRateTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topBidsAmountTableColumn;
+    private TableColumn<Order, String> topBidsAmountTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topBidsValueTableColumn;
+    private TableColumn<Order, String> topBidsValueTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topAsksTimeTableColumn;
+    private TableColumn<Order, String> topAsksTimeTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topAsksRateTableColumn;
+    private TableColumn<Order, String> topAsksRateTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topAsksAmountTableColumn;
+    private TableColumn<Order, String> topAsksAmountTableColumn;
 
     @FXML
-    private TableColumn<Offer, String> topAsksValueTableColumn;
+    private TableColumn<Order, String> topAsksValueTableColumn;
 
     @FXML
     private TableColumn<Trade, String> recentTradesTimeTableColumn;
@@ -135,8 +135,11 @@ public class MainController implements Observer {
     public void update(Observable o, Object arg) {
         if (o instanceof TopOrdersWorker) {
             Object[] data = (Object[]) arg;
-            topBidsTableView.setItems(FXCollections.observableList((List<Offer>) data[0]));
-            topAsksTableView.setItems(FXCollections.observableList((List<Offer>) data[1]));
+            if (data[0] == "Bids") {
+                topBidsTableView.setItems(FXCollections.observableList((List<Order>) data[1]));
+            } else {
+                topAsksTableView.setItems(FXCollections.observableList((List<Order>) data[1]));
+            }
         } else if (o instanceof TradingStrategy) {
             recentTradesTableView.setItems(FXCollections.observableList((List<Trade>)arg));
         }

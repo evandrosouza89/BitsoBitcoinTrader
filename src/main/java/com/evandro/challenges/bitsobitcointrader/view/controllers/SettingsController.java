@@ -1,10 +1,11 @@
-package com.evandro.challenges.bitcointrader.view.controllers;
+package com.evandro.challenges.bitsobitcointrader.view.controllers;
 
-import com.evandro.challenges.bitcointrader.Main;
+import com.evandro.challenges.bitsobitcointrader.Main;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextFormatter;
 import javafx.stage.Stage;
 
 public class SettingsController {
@@ -30,9 +31,18 @@ public class SettingsController {
     }
 
     private void initializeSpinners() {
-        mValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 3));
-        nValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 3));
-        xValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 20, 10));
+        mValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Integer.MAX_VALUE, 3));
+        TextFormatter formatter = new TextFormatter(mValueSpinner.getValueFactory().getConverter(), mValueSpinner.getValueFactory().getValue());
+        mValueSpinner.getEditor().setTextFormatter(formatter);
+        mValueSpinner.getValueFactory().valueProperty().bindBidirectional(formatter.valueProperty());
+        nValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 999, 3));
+        TextFormatter formatter2 = new TextFormatter(nValueSpinner.getValueFactory().getConverter(), nValueSpinner.getValueFactory().getValue());
+        nValueSpinner.getEditor().setTextFormatter(formatter2);
+        nValueSpinner.getValueFactory().valueProperty().bindBidirectional(formatter2.valueProperty());
+        xValueSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 999, 10));
+        TextFormatter formatter3 = new TextFormatter(xValueSpinner.getValueFactory().getConverter(), xValueSpinner.getValueFactory().getValue());
+        xValueSpinner.getEditor().setTextFormatter(formatter3);
+        xValueSpinner.getValueFactory().valueProperty().bindBidirectional(formatter3.valueProperty());
     }
 
     private void initializeButtons() {
