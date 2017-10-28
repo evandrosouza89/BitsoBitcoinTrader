@@ -10,6 +10,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/*This class implements the bot trading strategy. It's fed by the RecentTrades worker. M and N are the strategy algorithm arguments.
+After M rate increases the algorithm will sell 1 btc at the highest price.
+After N rate decreases the algorithm will buy 1 btc at the lowest price.
+It feeds the Main screen.*/
 public class TradingStrategy extends Observable implements Observer {
 
     private int m;
@@ -37,6 +41,7 @@ public class TradingStrategy extends Observable implements Observer {
         analyseTrades((List<Trade>) arg);
     }
 
+    /*Builds an imaginary trade that will be added to the main screen's recent trades table.*/
     protected Trade buildTrade(String makerSide, String price) {
         Trade t = new Trade();
         t.setAmount("1.0");
@@ -67,6 +72,7 @@ public class TradingStrategy extends Observable implements Observer {
         generateOutput();
     }
 
+    /*Here the contiguous upticks and downticks are calculated and the logic applied.*/
     private void analyseTrade(Trade t) {
         Double price = Double.valueOf(t.getPrice());
         if (lastPrice != null) {

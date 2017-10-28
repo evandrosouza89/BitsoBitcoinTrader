@@ -21,6 +21,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/*The starting point. Everything is setup and started here, and everything could be stopped here as well.
+This class provides a singleton. */
 public class Main extends Application {
 
     private final Logger logger = LogManager.getLogger();
@@ -74,6 +76,7 @@ public class Main extends Application {
         settingsStage.showAndWait();
     }
 
+    /*Settings window setup*/
     private void setupSettingStage() {
         settingsStage = new Stage();
         Scene settingsScene = null;
@@ -88,6 +91,7 @@ public class Main extends Application {
         settingsStage.setTitle("Settings");
     }
 
+    /*Websocket connection setup*/
     private void setupWebSocket() {
         try {
             clientEndPoint = new WebSocketClient(new URI(WS_URI));
@@ -96,6 +100,7 @@ public class Main extends Application {
         }
     }
 
+    /*Workers start*/
     public void startWorkers(int m, int n, int x) {
         tow = new TopOrdersWorker(clientEndPoint, EnumBook.BTC_MXN.toString(), x);
         tow.addObserver(loader.getController());
@@ -108,14 +113,15 @@ public class Main extends Application {
             logger.error(e);
         }
 
-        TradingStrategy tw = new TradingStrategy(m, n);
-        tw.addObserver(loader.getController());
-        rtw.addObserver(tw);
+        TradingStrategy ts = new TradingStrategy(m, n);
+        ts.addObserver(loader.getController());
+        rtw.addObserver(ts);
 
         Thread t2 = new Thread(rtw);
         t2.start();
     }
 
+    /*Workers stop*/
     public void stopWorkers(){
         if(tow != null) {
             tow.setRun(false);

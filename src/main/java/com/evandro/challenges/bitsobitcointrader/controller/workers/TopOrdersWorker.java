@@ -20,11 +20,14 @@ import java.util.Queue;
 
 import static java.lang.Thread.sleep;
 
+/*Worker designated to request the best live asks/bids using a websocket connection. Its output is limited by the (int)size argument.
+It tries to rebuild the connection after 10 seconds without new messages.
+* Feeds Main screen*/
 public class TopOrdersWorker extends Worker implements Runnable {
 
     private final Logger logger = LogManager.getLogger();
 
-    private static final int CON_TIMEOUT = 10000;
+    private static final int CON_TIMEOUT = 10000; // 10 seconds without new messages = reconnect
 
     private Command subscribeCommand;
 
@@ -34,7 +37,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
 
     private boolean subscribed;
 
-    private int receivedMessagesCount;
+    private int receivedMessagesCount; // Are we receiving new messages?
 
     private Queue<Order> bidsOutput;
 
@@ -68,12 +71,13 @@ public class TopOrdersWorker extends Worker implements Runnable {
         wsClient.addMessageHandler(this::handleMessage);
     }
 
+    /*Received messages from websocket are processed here*/
     private void handleMessage(String message) {
         try {
             JsonElement element = parser.parse(message);
             if (element.isJsonObject()) {
                 JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get("type").getAsString().equals("ka")) {
+                if (jsonObject.get("type").getAsString().equals("ka")) { // Ignoring keep alive messages
                     receivedMessagesCount++;
                 } else if (jsonObject.get("type").getAsString().equals("diff-orders")) {
                     Orders orders = gson.fromJson(message, Orders.class);
@@ -88,6 +92,8 @@ public class TopOrdersWorker extends Worker implements Runnable {
         }
     }
 
+    /*Updates the proper outputs by separating messages by its operation type.
+    If Order status is cancelled, it will remove it from the queue*/
     private void processOrderMessage(Orders orders) {
         orders.getPayload().forEach(o -> {
             if (o.getOperation() == Order.Operation.BUY) {
@@ -112,6 +118,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
         wsClient.sendMessage(gson.toJson(subscribeCommand));
     }
 
+    /*Feeds the Main screen's controller*/
     private void generateOutput() {
         if (!bidsOutput.isEmpty()) {
             setChanged();

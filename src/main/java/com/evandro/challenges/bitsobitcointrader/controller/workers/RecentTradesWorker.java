@@ -14,6 +14,8 @@ import java.net.URL;
 
 import static java.lang.Thread.sleep;
 
+/*Worker designed to request the most recent trades from a REST service. Its output is limited by the (int)size argument.
+Feeds TradingStrategy object*/
 public class RecentTradesWorker extends Worker implements Runnable {
 
     private final Logger logger = LogManager.getLogger();
@@ -39,6 +41,7 @@ public class RecentTradesWorker extends Worker implements Runnable {
         url = new URL(wsURL);
     }
 
+    /*A simple GET request using HttpURLConnection client*/
     protected void request(HttpURLConnection conn) throws IOException {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -48,7 +51,7 @@ public class RecentTradesWorker extends Worker implements Runnable {
             Trades trades = gson.fromJson(new InputStreamReader(conn.getInputStream()), Trades.class);
             if (trades != null && trades.getSuccess() != null && trades.getSuccess() && trades.getPayload() != null) {
                 setChanged();
-                notifyObservers(trades.getPayload());
+                notifyObservers(trades.getPayload()); // Feeds TradingStrategy object
             }
         }
         conn.disconnect();
