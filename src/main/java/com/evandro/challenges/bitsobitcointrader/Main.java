@@ -8,9 +8,12 @@ import com.evandro.challenges.bitsobitcointrader.controller.workers.RecentTrades
 import com.evandro.challenges.bitsobitcointrader.controller.workers.TopOrdersWorker;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -90,6 +93,11 @@ public class Main extends Application {
         } catch (IOException e) {
             logger.error("Setting stage setup failed!", e);
         }
+        settingsScene.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            if (t.getCode() == KeyCode.ESCAPE) {
+                settingsStage.getScene().lookup("#cancelButton").fireEvent(new ActionEvent());
+            }
+        });
         settingsStage.setScene(settingsScene);
         settingsStage.setResizable(false);
         settingsStage.initModality(Modality.APPLICATION_MODAL);
