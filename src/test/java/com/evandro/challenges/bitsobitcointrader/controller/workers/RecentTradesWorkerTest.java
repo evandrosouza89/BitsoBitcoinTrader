@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 public class RecentTradesWorkerTest {
 
     @Mock
-    final Flag flag = new Flag();
+    private final Flag flag = new Flag();
 
     private RecentTradesWorker rtw;
 

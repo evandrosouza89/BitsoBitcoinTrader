@@ -38,9 +38,7 @@ public class TradingStrategyTest {
         ObservableDummy observableDummy = new ObservableDummy();
         observableDummy.addObserver(ts);
 
-        Observer observerDummy = (o, arg) -> {
-            assertTrue(arg instanceof List);
-        };
+        Observer observerDummy = (o, arg) -> assertTrue(arg instanceof List);
 
         ts.addObserver(observerDummy);
 
@@ -91,15 +89,15 @@ public class TradingStrategyTest {
 
     private List<Trade> buildTradeListBuyAsc() {
         List<Trade> tradeList = new ArrayList();
-        tradeList.add(buildTrade(2l, "buy", "1.1"));
-        tradeList.add(buildTrade(1l, "buy", "1"));
+        tradeList.add(buildTrade(2L, "buy", "1.1"));
+        tradeList.add(buildTrade(1L, "buy", "1"));
         return tradeList;
     }
 
     private List<Trade> buildTradeListSellDesc() {
         List<Trade> tradeList = new ArrayList();
-        tradeList.add(buildTrade(2l, "sell", "0.9"));
-        tradeList.add(buildTrade(1l, "sell", "1"));
+        tradeList.add(buildTrade(2L, "sell", "0.9"));
+        tradeList.add(buildTrade(1L, "sell", "1"));
         return tradeList;
     }
 

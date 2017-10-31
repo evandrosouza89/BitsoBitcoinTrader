@@ -88,7 +88,7 @@ public class Main extends Application {
         try {
             settingsScene = new Scene(FXMLLoader.load(getClass().getResource("/fxml/Settings.fxml")));
         } catch (IOException e) {
-            logger.error(e);
+            logger.error("Setting stage setup failed!", e);
         }
         settingsStage.setScene(settingsScene);
         settingsStage.setResizable(false);
@@ -101,7 +101,7 @@ public class Main extends Application {
         try {
             clientEndPoint = new WebSocketClient(new URI(WS_URL));
         } catch (URISyntaxException e) {
-            logger.error(e);
+            logger.error("Websocket setup failed!", e);
         }
     }
 
@@ -110,7 +110,7 @@ public class Main extends Application {
         try {
             tow = new TopOrdersWorker(clientEndPoint, REST_URL + EnumMessageType.ORDER_BOOK.toString(), EnumBook.BTC_MXN, x);
         } catch (MalformedURLException e) {
-            logger.error(e);
+            logger.error("Failed to start TopOrdersWorker!", e);
         }
         tow.addObserver(loader.getController());
         Thread t1 = new Thread(tow);
@@ -119,7 +119,7 @@ public class Main extends Application {
         try {
             rtw = new RecentTradesWorker(REST_URL + EnumMessageType.TRADES.toString(), EnumBook.BTC_MXN, x);
         } catch (MalformedURLException e) {
-            logger.error(e);
+            logger.error("Failed to start RecenTradesWorker!", e);
         }
 
         TradingStrategy ts = new TradingStrategy(m, n);

@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -22,20 +22,47 @@ import java.util.List;
 import java.util.Observer;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TopOrdersWorkerTest {
 
     @Mock
-    final Flag flag = new Flag();
+    private final Flag flag = new Flag();
+
+    @Mock
+    private HttpURLConnection conn;
+
+    @Mock
+    private TopOrdersWorker mockedTow;
 
     private TopOrdersWorker tow;
 
     @Before
-    public void setup() throws URISyntaxException, MalformedURLException {
+    public void setup() throws URISyntaxException, IOException {
         tow = new TopOrdersWorker(new WebSocketClient(new URI(Main.WS_URL)), Main.REST_URL + EnumMessageType.ORDER_BOOK.toString(), EnumBook.BTC_MXN, 10);
+        doCallRealMethod().when(mockedTow).run();
+        doCallRealMethod().when(mockedTow).setRun(anyBoolean());
+        doNothing().when(mockedTow).requestOrderBook();
+        doNothing().when(mockedTow).subscribe();
+    }
+
+    @Test
+    public void shouldPerformASubscribeAndARequestWhenRun() throws IOException, InterruptedException {
+        Thread t = new Thread(mockedTow);
+        mockedTow.setRun(true);
+        t.start();
+        verify(mockedTow, timeout(5000).atLeast(1)).subscribe();
+        verify(mockedTow, timeout(5000).atLeast(1)).requestOrderBook();
+    }
+
+    @Test
+    public void shouldSetGetParametersAndDisconnect() throws IOException {
+        tow.requestOrderBook(conn);
+        verify(conn, times(1)).setRequestMethod("GET");
+        verify(conn, times(1)).setRequestProperty("Accept", "application/json");
+        verify(conn, times(1)).setRequestProperty("User-Agent", "");
+        verify(conn, times(1)).disconnect();
     }
 
     @Test

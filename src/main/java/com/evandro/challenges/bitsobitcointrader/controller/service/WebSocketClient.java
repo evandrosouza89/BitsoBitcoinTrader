@@ -24,7 +24,7 @@ public class WebSocketClient {
         try {
             client.connectToServer(this, endpointURI);
         } catch (DeploymentException | IOException e) {
-            logger.error(e);
+            logger.error("Failed to connect to server!", e);
         }
     }
 

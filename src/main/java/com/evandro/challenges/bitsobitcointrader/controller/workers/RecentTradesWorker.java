@@ -67,7 +67,7 @@ public class RecentTradesWorker extends Worker implements Runnable {
                 requestRecentTrades();
                 sleep(5000);
             } catch (Exception e) {
-                logger.warn(e);
+                logger.warn("Failed to retrieve recent trades!", e);
             }
         }
     }

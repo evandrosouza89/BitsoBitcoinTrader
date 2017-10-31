@@ -14,9 +14,9 @@ public class Worker extends Observable {
 
     protected Gson gson;
 
-    protected EnumBook book;
+    protected final EnumBook book;
 
-    protected int size;
+    protected final int size;
 
     protected String restURL;
 
@@ -26,7 +26,7 @@ public class Worker extends Observable {
     @Setter
     protected boolean run;
 
-    public Worker(String restURL, EnumBook book, int size) {
+    protected Worker(String restURL, EnumBook book, int size) {
         this.restURL = restURL;
         this.book = book;
         this.size = size;

@@ -16,9 +16,9 @@ After N rate decreases the algorithm will buy 1 btc at the lowest price.
 It feeds the Main screen.*/
 public class TradingStrategy extends Observable implements Observer {
 
-    private int m;
+    private final int m;
 
-    private int n;
+    private final int n;
 
     private int upTick;
 

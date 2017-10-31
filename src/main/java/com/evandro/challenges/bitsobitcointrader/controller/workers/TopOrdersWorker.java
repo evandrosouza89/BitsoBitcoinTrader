@@ -23,7 +23,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import static java.lang.Thread.sleep;
 
@@ -38,7 +41,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
 
     private Command subscribeCommand;
 
-    private WebSocketClient wsClient;
+    private final WebSocketClient wsClient;
 
     private JsonParser parser;
 
@@ -128,7 +131,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
         orderBookReceived = true;
     }
 
-    private void subscribe() {
+    protected void subscribe() {
         wsClient.sendMessage(gson.toJson(subscribeCommand));
     }
 
@@ -154,7 +157,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
                 }
             }
         } catch (Exception e) {
-            logger.warn(e);
+            logger.warn("Failed to handle websocket message: " + message, e);
         }
     }
 
@@ -218,10 +221,10 @@ public class TopOrdersWorker extends Worker implements Runnable {
     }
 
     protected List<Order> sortByPrice(List<Order> orderList, boolean asc) {
-        Collections.sort(orderList, (o1, o2) -> {
+        orderList.sort((o1, o2) -> {
             Double o1Rate = Double.valueOf(o1.getPrice());
             Double o2Rate = Double.valueOf(o2.getPrice());
-            if (o1Rate == o2Rate)
+            if (o1Rate.doubleValue() == o2Rate.doubleValue())
                 return 0;
             if (asc) {
                 return o1Rate < o2Rate ? -1 : 1;
@@ -246,7 +249,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
                 }
                 sleep(100);
             } catch (Exception e) {
-                logger.warn(e);
+                logger.warn("Failed to request top orders!", e);
             }
             if (count * 100 >= CON_TIMEOUT) {
                 count = 0;
