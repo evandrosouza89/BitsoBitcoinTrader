@@ -97,7 +97,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
         wsClient.addMessageHandler(this::handleWebSocketMessage);
     }
 
-    /*Request Order Book initial state using HttpURLConnection client*/
+    /*Request Order Book snapshot using HttpURLConnection client*/
     protected void requestOrderBook(HttpURLConnection conn) throws IOException {
         setupHttpGETConnection(conn);
 
@@ -162,7 +162,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
     }
 
 
-    /*Updates the initial state of the bid/ask order books*/
+    /*Updates the snapshot of the bid/ask order books*/
     private void processQueuedDiffOrders() {
         while (!diffOrdersQueue.isEmpty()) {
             if (diffOrdersQueue.peek().getSequence() != null && diffOrdersQueue.peek().getSequence() > latestSequence) {

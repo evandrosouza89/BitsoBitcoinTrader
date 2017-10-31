@@ -58,6 +58,7 @@ public class TradingStrategy extends Observable implements Observer {
         return t;
     }
 
+    /*New trades that came from RecentTradesWorker*/
     private void analyseTrades(List<Trade> tradeList) {
         if (output == null) {
             output = new CircularFifoQueue<>(tradeList.size());
