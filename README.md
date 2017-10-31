@@ -49,3 +49,16 @@ https://projectlombok.org/setup/
 ## Screen
 
 ![alt text](https://preview.ibb.co/hqQPvm/Screenshot1.png)
+
+## Checklist
+
+
+| Feature       | File name     | Method name |
+| ------------- | ------------- | ----------- |
+| Schedule the polling of trades over REST.                    | RecentTradesWorker.java  | protected void requestRecentTrades(HttpURLConnection conn) |
+| Request a book snapshot over REST.                           | TopOrdersWorker.java  | protected void requestOrderBook(HttpURLConnection conn) |
+| Listen for diff-orders over websocket.                       | (1) WebSocketClient / (2) TopOrdersWorker.java  | (1) public void onMessage(String message) / (2) private void handleWebSocketMessage(String message) |
+| Replay diff-orders after book snapshot.                      | TopOrdersWorker.java  | private void processQueuedDiffOrders() |
+| Use config option X to request X most recent trades.         | RecentTradesWorker.java | private void setupRESTURL() / protected void requestRecentTrades(HttpURLConnection conn) |
+| Use config option X to limit number of ASKs displayed in UI. | (1) Main.java / (2) TopOrdersWorker.java  | (1) public void startWorkers(int m, int n, int x) / (2) private void generateOutput() |
+| The loop that causes the trading algorithm to reevaluate.    | (1) RecentTradesWorker.java / (2) TradingStrategy.java  | (1) public void run() / (2) private void analyseTrades(List<Trade> tradeList) |
