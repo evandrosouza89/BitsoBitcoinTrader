@@ -33,10 +33,11 @@
                                         <TableView fx:id="topBidsTableView">
                                             <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                                             <columns>
-                                                <TableColumn fx:id="topBidsTimeTableColumn" sortable="false" text="Time" />
-                                                <TableColumn fx:id="topBidsRateTableColumn" sortable="false" text="Rate" />
+                                                <TableColumn fx:id="topBidsBookTableColumn" sortable="false"
+                                                             text="Book"/>
+                                                <TableColumn fx:id="topBidsPriceTableColumn" sortable="false"
+                                                             text="Price"/>
                                                 <TableColumn fx:id="topBidsAmountTableColumn" sortable="false" text="Amount" />
-                                                <TableColumn fx:id="topBidsValueTableColumn" sortable="false" text="Value" />
                                             </columns>
                                         </TableView>
                                     </children>
@@ -54,10 +55,11 @@
                                         <TableView fx:id="topAsksTableView">
                                             <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                                             <columns>
-                                                <TableColumn fx:id="topAsksTimeTableColumn" sortable="false" text="Time" />
-                                                <TableColumn fx:id="topAsksRateTableColumn" sortable="false" text="Rate" />
+                                                <TableColumn fx:id="topAsksBookTableColumn" sortable="false"
+                                                             text="Book"/>
+                                                <TableColumn fx:id="topAsksPriceTableColumn" sortable="false"
+                                                             text="Price"/>
                                                 <TableColumn fx:id="topAsksAmountTableColumn" sortable="false" text="Amount" />
-                                                <TableColumn fx:id="topAsksValueTableColumn" sortable="false" text="Value" />
                                             </columns>
                                         </TableView>
                                     </children>

@@ -1,28 +1,35 @@
 package com.evandro.challenges.bitsobitcointrader.controller.workers;
 
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumAction;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumMessageType;
 import com.evandro.challenges.bitsobitcointrader.controller.service.WebSocketClient;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.orderbook.Order;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.orderbook.OrderBook;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.orderbook.OrderBookPayload;
 import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.commands.Command;
-import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order;
-import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Orders;
-import com.evandro.challenges.bitsobitcointrader.controller.utils.Utils;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.difforders.DiffOrder;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.difforders.DiffOrders;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.commons.Worker;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 import static java.lang.Thread.sleep;
 
-/*Worker designated to request the best live asks/bids using a websocket connection. Its output is limited by the (int)size argument.
+/*Worker designated to maintain the most updated state of order book through rest/websocket connections. Its output is limited by the (int)size argument.
 It tries to rebuild the connection after 10 seconds without new messages.
-* Feeds Main screen*/
+Feeds Main screen*/
 public class TopOrdersWorker extends Worker implements Runnable {
 
     private final Logger logger = LogManager.getLogger();
@@ -35,54 +42,113 @@ public class TopOrdersWorker extends Worker implements Runnable {
 
     private JsonParser parser;
 
-    private boolean subscribed;
+    private boolean subscribed; // Websocket subscription command sent?
+
+    private boolean orderBookReceived; // Do we have order book initial states?
 
     private int receivedMessagesCount; // Are we receiving new messages?
 
-    private Queue<Order> bidsOutput;
+    private List<Order> bidOrderBook; // Bids order book state
 
-    private Queue<Order> asksOutput;
+    private List<Order> askOrderBook; // Asks order book state
 
-    public TopOrdersWorker(WebSocketClient wsClient, String book, int size) {
+    private Queue<DiffOrders> diffOrdersQueue; // Websocket messages are stored here while the initial state of order book is not received.
+
+    private long latestSequence;
+
+    public TopOrdersWorker(WebSocketClient wsClient, String restURL, EnumBook book, int size) throws MalformedURLException {
+        super(restURL, book, size);
         this.wsClient = wsClient;
-        this.book = book;
-        this.size = size;
         setup();
     }
 
-    private void setup() {
+    private void setup() throws MalformedURLException {
         run = true;
         gson = new Gson();
         parser = new JsonParser();
-        bidsOutput = new CircularFifoQueue<>(size);
-        asksOutput = new CircularFifoQueue<>(size);
+        bidOrderBook = new ArrayList<>();
+        askOrderBook = new ArrayList<>();
+        diffOrdersQueue = new LinkedList<>();
+
+        setupRESTURL();
         setupSubscribeCommand();
         setupMessageHandler();
     }
 
+    private void setupRESTURL() throws MalformedURLException {
+        restURL = restURL.concat("?book=");
+        restURL = restURL.concat(book.toString());
+        restURL = restURL.concat("&aggregate=");
+        restURL = restURL.concat("false");
+        url = new URL(restURL);
+    }
+
     private void setupSubscribeCommand() {
         subscribeCommand = new Command();
-        subscribeCommand.setAction("subscribe");
+        subscribeCommand.setAction(EnumAction.SUBSCRIBE);
         subscribeCommand.setBook(book);
-        subscribeCommand.setType("diff-orders");
+        subscribeCommand.setType(EnumMessageType.DIFF_ORDERS);
     }
 
     private void setupMessageHandler() {
-        wsClient.addMessageHandler(this::handleMessage);
+        wsClient.addMessageHandler(this::handleWebSocketMessage);
+    }
+
+    /*Request Order Book initial state using HttpURLConnection client*/
+    protected void requestOrderBook(HttpURLConnection conn) throws IOException {
+        setupHttpGETConnection(conn);
+
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            OrderBook orderBook = gson.fromJson(new InputStreamReader(conn.getInputStream()), OrderBook.class);
+            if (orderBook != null && orderBook.getSuccess() != null && orderBook.getSuccess() && orderBook.getPayload() != null) {
+                processOrderBookPayload(orderBook.getPayload());
+            }
+        }
+
+        conn.disconnect();
+    }
+
+    protected void requestOrderBook() throws IOException {
+        requestOrderBook((HttpURLConnection) url.openConnection());
+    }
+
+    /*Received messages from Http client are processed here*/
+    private void processOrderBookPayload(OrderBookPayload orderBookPayload) {
+        try {
+            latestSequence = Long.valueOf(orderBookPayload.getSequence());
+        } catch (NumberFormatException e) {
+            return;
+        }
+        bidOrderBook.clear();
+        bidOrderBook.addAll(orderBookPayload.getBidList());
+        askOrderBook.clear();
+        askOrderBook.addAll(orderBookPayload.getAskList());
+        processQueuedDiffOrders(); // Process queued messages from websocket connection
+        generateOutput();
+        orderBookReceived = true;
+    }
+
+    private void subscribe() {
+        wsClient.sendMessage(gson.toJson(subscribeCommand));
     }
 
     /*Received messages from websocket are processed here*/
-    private void handleMessage(String message) {
+    private void handleWebSocketMessage(String message) {
+        logger.debug(message);
         try {
             JsonElement element = parser.parse(message);
             if (element.isJsonObject()) {
                 JsonObject jsonObject = element.getAsJsonObject();
-                if (jsonObject.get("type").getAsString().equals("ka")) { // Ignoring keep alive messages
+                if (jsonObject.get("type").getAsString().equals(EnumMessageType.KEEP_ALIVE.toString())) { // Ignoring keep alive messages
                     receivedMessagesCount++;
-                } else if (jsonObject.get("type").getAsString().equals("diff-orders")) {
-                    Orders orders = gson.fromJson(message, Orders.class);
-                    if (orders != null && orders.getPayload() != null) {
-                        processOrderMessage(orders);
+                } else if (jsonObject.get("type").getAsString().equals(EnumMessageType.DIFF_ORDERS.toString())) {
+                    DiffOrders diffOrders = gson.fromJson(message, DiffOrders.class);
+                    if (diffOrders != null && diffOrders.getPayload() != null) {
+                        if (orderBookReceived) {
+                            processDiffOrder(diffOrders);
+                        } else {
+                            diffOrdersQueue.offer(diffOrders);
+                        }
                     }
                     receivedMessagesCount++;
                 }
@@ -92,48 +158,69 @@ public class TopOrdersWorker extends Worker implements Runnable {
         }
     }
 
+
+    /*Updates the initial state of the bid/ask order books*/
+    private void processQueuedDiffOrders() {
+        while (!diffOrdersQueue.isEmpty()) {
+            if (diffOrdersQueue.peek().getSequence() != null && diffOrdersQueue.peek().getSequence() > latestSequence) {
+                latestSequence = diffOrdersQueue.peek().getSequence();
+                processDiffOrder(diffOrdersQueue.poll());
+            } else {
+                diffOrdersQueue.poll();
+            }
+        }
+    }
+
     /*Updates the proper outputs by separating messages by its operation type.
-    If Order status is cancelled, it will remove it from the queue*/
-    private void processOrderMessage(Orders orders) {
-        orders.getPayload().forEach(o -> {
-            if (o.getOperation() == Order.Operation.BUY) {
-                if (o.getStatus() == Order.Status.OPEN) {
-                    asksOutput.add(o);
-                } else if (o.getStatus() == Order.Status.CANCELLED) {
-                    asksOutput.remove(o);
+    If DiffOrder status is cancelled, it will remove it from the book current state*/
+    private void processDiffOrder(DiffOrders diffOrders) {
+        diffOrders.getPayload().forEach(o -> {
+            if (o.getOperation() == DiffOrder.Operation.BUY) {
+                if (o.getStatus() == DiffOrder.Status.OPEN) {
+                    askOrderBook.add(buildOrder(o, diffOrders.getBook().toString()));
+                } else if (o.getStatus() == DiffOrder.Status.CANCELLED) {
+                    askOrderBook.remove(buildOrder(o, diffOrders.getBook().toString()));
                 }
 
-            } else if (o.getOperation() == Order.Operation.SELL) {
-                if (o.getStatus() == Order.Status.OPEN) {
-                    bidsOutput.add(o);
-                } else if (o.getStatus() == Order.Status.CANCELLED) {
-                    bidsOutput.remove(o);
+            } else if (o.getOperation() == DiffOrder.Operation.SELL) {
+                if (o.getStatus() == DiffOrder.Status.OPEN) {
+                    bidOrderBook.add(buildOrder(o, diffOrders.getBook().toString()));
+                } else if (o.getStatus() == DiffOrder.Status.CANCELLED) {
+                    bidOrderBook.remove(buildOrder(o, diffOrders.getBook().toString()));
                 }
             }
         });
         generateOutput();
     }
 
-    private void subscribe() {
-        wsClient.sendMessage(gson.toJson(subscribeCommand));
+    /*Converts a DiffOrder object into a Order object*/
+    protected Order buildOrder(DiffOrder diffOrder, String book) {
+        Order o = new Order();
+        o.setOrderId(diffOrder.getOrderId());
+        o.setAmount(diffOrder.getAmount());
+        o.setBook(book);
+        o.setPrice(diffOrder.getRate());
+        return o;
     }
 
-    /*Feeds the Main screen's controller*/
+    /*Feeds the controller of Main screen*/
     private void generateOutput() {
-        if (!bidsOutput.isEmpty()) {
+        if (!bidOrderBook.isEmpty()) {
             setChanged();
-            notifyObservers(new Object[]{"Bids", sortByRate(Utils.queueToList(bidsOutput), false)});
+            notifyObservers(new Object[]{"Bids",
+                    sortByPrice(new ArrayList<>(bidOrderBook.subList(0, bidOrderBook.size() > size ? size : bidOrderBook.size())), false)}); // Feeds top bids table of main screen
         }
-        if (!asksOutput.isEmpty()) {
+        if (!askOrderBook.isEmpty()) {
             setChanged();
-            notifyObservers(new Object[]{"Asks", sortByRate(Utils.queueToList(asksOutput), true)});
+            notifyObservers(new Object[]{"Asks",
+                    sortByPrice(new ArrayList<>(askOrderBook.subList(0, askOrderBook.size() > size ? size : askOrderBook.size())), true)}); // Feeds top asks table of main screen
         }
     }
 
-    protected List<Order> sortByRate(List<Order> orderList, boolean asc) {
+    protected List<Order> sortByPrice(List<Order> orderList, boolean asc) {
         Collections.sort(orderList, (o1, o2) -> {
-            Double o1Rate = new Double(o1.getRate());
-            Double o2Rate = new Double(o2.getRate());
+            Double o1Rate = Double.valueOf(o1.getPrice());
+            Double o2Rate = Double.valueOf(o2.getPrice());
             if (o1Rate == o2Rate)
                 return 0;
             if (asc) {
@@ -153,6 +240,10 @@ public class TopOrdersWorker extends Worker implements Runnable {
                     subscribe();
                     subscribed = true;
                 }
+
+                if (!orderBookReceived) {
+                    requestOrderBook();
+                }
                 sleep(100);
             } catch (Exception e) {
                 logger.warn(e);
@@ -160,6 +251,7 @@ public class TopOrdersWorker extends Worker implements Runnable {
             if (count * 100 >= CON_TIMEOUT) {
                 count = 0;
                 if (receivedMessagesCount == 0) {
+                    orderBookReceived = false;
                     subscribed = false;
                 }
                 receivedMessagesCount = 0;

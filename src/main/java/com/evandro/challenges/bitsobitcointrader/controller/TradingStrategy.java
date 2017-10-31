@@ -41,7 +41,7 @@ public class TradingStrategy extends Observable implements Observer {
         analyseTrades((List<Trade>) arg);
     }
 
-    /*Builds an imaginary trade that will be added to the main screen's recent trades table.*/
+    /*Builds an imaginary trade that will be added to the recent trades table of main screen.*/
     protected Trade buildTrade(String makerSide, String price) {
         Trade t = new Trade();
         t.setAmount("1.0");
@@ -99,7 +99,7 @@ public class TradingStrategy extends Observable implements Observer {
             List<Trade> aux = Utils.queueToList(output);
             Collections.reverse(aux);
             setChanged();
-            notifyObservers(aux);
+            notifyObservers(aux); // Feeds recent trades table of main screen
         }
     }
 }

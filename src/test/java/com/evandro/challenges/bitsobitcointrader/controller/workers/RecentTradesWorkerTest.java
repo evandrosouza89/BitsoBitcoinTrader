@@ -1,6 +1,8 @@
 package com.evandro.challenges.bitsobitcointrader.controller.workers;
 
+import com.evandro.challenges.bitsobitcointrader.Main;
 import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumMessageType;
 import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades.Trade;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.utils.Flag;
 import org.junit.Before;
@@ -23,18 +25,21 @@ public class RecentTradesWorkerTest {
 
     @Mock
     final Flag flag = new Flag();
+
     private RecentTradesWorker rtw;
+
     @Mock
     private RecentTradesWorker mockedRtw;
+
     @Mock
     private HttpURLConnection conn;
 
     @Before
     public void setup() throws IOException {
-        rtw = new RecentTradesWorker("https://api.bitso.com/v3/trades/", EnumBook.BTC_MXN.toString(), 10);
+        rtw = new RecentTradesWorker(Main.REST_URL + EnumMessageType.TRADES.toString(), EnumBook.BTC_MXN, 10);
         doCallRealMethod().when(mockedRtw).run();
         doCallRealMethod().when(mockedRtw).setRun(anyBoolean());
-        doNothing().when(mockedRtw).request();
+        doNothing().when(mockedRtw).requestRecentTrades();
     }
 
     @Test
@@ -42,12 +47,12 @@ public class RecentTradesWorkerTest {
         Thread t = new Thread(mockedRtw);
         mockedRtw.setRun(true);
         t.start();
-        verify(mockedRtw, timeout(5000).atLeast(1)).request();
+        verify(mockedRtw, timeout(5000).atLeast(1)).requestRecentTrades();
     }
 
     @Test
     public void shouldSetGetParametersAndDisconnect() throws IOException {
-        rtw.request(conn);
+        rtw.requestRecentTrades(conn);
         verify(conn, times(1)).setRequestMethod("GET");
         verify(conn, times(1)).setRequestProperty("Accept", "application/json");
         verify(conn, times(1)).setRequestProperty("User-Agent", "");

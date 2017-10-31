@@ -1,4 +1,4 @@
-package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders;
+package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.difforders;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class Order {
+public class DiffOrder {
 
     @SerializedName("o")
     private String orderId;
@@ -40,10 +40,9 @@ public class Order {
             return false;
         }
 
-        Order o = (Order) obj;
+        DiffOrder diffOrder = (DiffOrder) obj;
 
-        return o.getOrderId().equals(this.orderId);
-
+        return diffOrder.getOrderId().equals(this.orderId);
     }
 
     @Override
@@ -67,6 +66,5 @@ public class Order {
 
         @SerializedName("cancelled")
         CANCELLED
-
     }
 }

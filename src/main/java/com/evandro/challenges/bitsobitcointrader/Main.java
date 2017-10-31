@@ -2,6 +2,7 @@ package com.evandro.challenges.bitsobitcointrader;
 
 import com.evandro.challenges.bitsobitcointrader.controller.TradingStrategy;
 import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumMessageType;
 import com.evandro.challenges.bitsobitcointrader.controller.service.WebSocketClient;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.RecentTradesWorker;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.TopOrdersWorker;
@@ -27,7 +28,9 @@ public class Main extends Application {
 
     private final Logger logger = LogManager.getLogger();
 
-    public static final String WS_URI = "wss://ws.bitso.com";
+    public static final String REST_URL = "https://api.bitso.com/v3/";
+
+    public static final String WS_URL = "wss://ws.bitso.com";
 
     private static Main instance = null;
 
@@ -38,28 +41,27 @@ public class Main extends Application {
     private TopOrdersWorker tow;
 
     private RecentTradesWorker rtw;
-
     @Getter
     private Stage settingsStage;
 
-    public Main(){
+    public Main() {
         super();
-        synchronized(Main.class) {
-            if(instance != null) throw new UnsupportedOperationException(
-                    getClass()+" is singleton but constructor called more than once");
+        synchronized (Main.class) {
+            if (instance != null) throw new UnsupportedOperationException(
+                    getClass() + " is singleton but constructor called more than once");
             instance = this;
         }
     }
 
     public static Main getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Main();
         }
         return instance;
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Bitso Bitcoin Trader");
@@ -70,7 +72,10 @@ public class Main extends Application {
 
         primaryStage.setMaximized(true);
         primaryStage.setResizable(true);
-        primaryStage.setOnCloseRequest(e -> {Platform.exit(); System.exit(0);});
+        primaryStage.setOnCloseRequest(e -> {
+            Platform.exit();
+            System.exit(0);
+        });
         primaryStage.show();
         root.requestFocus();
         settingsStage.showAndWait();
@@ -94,7 +99,7 @@ public class Main extends Application {
     /*Websocket connection setup*/
     private void setupWebSocket() {
         try {
-            clientEndPoint = new WebSocketClient(new URI(WS_URI));
+            clientEndPoint = new WebSocketClient(new URI(WS_URL));
         } catch (URISyntaxException e) {
             logger.error(e);
         }
@@ -102,13 +107,17 @@ public class Main extends Application {
 
     /*Workers start*/
     public void startWorkers(int m, int n, int x) {
-        tow = new TopOrdersWorker(clientEndPoint, EnumBook.BTC_MXN.toString(), x);
+        try {
+            tow = new TopOrdersWorker(clientEndPoint, REST_URL + EnumMessageType.ORDER_BOOK.toString(), EnumBook.BTC_MXN, x);
+        } catch (MalformedURLException e) {
+            logger.error(e);
+        }
         tow.addObserver(loader.getController());
         Thread t1 = new Thread(tow);
         t1.start();
 
         try {
-            rtw = new RecentTradesWorker("https://api.bitso.com/v3/trades/", EnumBook.BTC_MXN.toString(), x);
+            rtw = new RecentTradesWorker(REST_URL + EnumMessageType.TRADES.toString(), EnumBook.BTC_MXN, x);
         } catch (MalformedURLException e) {
             logger.error(e);
         }
@@ -122,11 +131,12 @@ public class Main extends Application {
     }
 
     /*Workers stop*/
-    public void stopWorkers(){
-        if(tow != null) {
+    public void stopWorkers() {
+        if (tow != null) {
             tow.setRun(false);
         }
-        if(rtw != null) {
+
+        if (rtw != null) {
             rtw.setRun(false);
         }
     }

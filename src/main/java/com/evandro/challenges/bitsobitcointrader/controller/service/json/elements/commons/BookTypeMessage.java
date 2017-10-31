@@ -1,5 +1,7 @@
 package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.commons;
 
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumMessageType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class BookTypeMessage {
 
-    private String book;
+    private EnumBook book;
 
-    private String type;
+    private EnumMessageType type;
 }

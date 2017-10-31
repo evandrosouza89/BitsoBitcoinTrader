@@ -1,4 +1,4 @@
-package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders;
+package com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.difforders;
 
 import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.commons.BookTypeSequencePayloadMessage;
 import lombok.Getter;
@@ -8,5 +8,5 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Orders extends BookTypeSequencePayloadMessage<List<Order>> {
+public class DiffOrders extends BookTypeSequencePayloadMessage<List<DiffOrder>> {
 }

@@ -2,8 +2,10 @@ package com.evandro.challenges.bitsobitcointrader.controller.workers;
 
 import com.evandro.challenges.bitsobitcointrader.Main;
 import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumMessageType;
 import com.evandro.challenges.bitsobitcointrader.controller.service.WebSocketClient;
-import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.orderbook.Order;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.difforders.DiffOrder;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.utils.Flag;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,14 +14,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observer;
 
-import static com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order.Operation;
-import static com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order.Status;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -29,24 +30,23 @@ public class TopOrdersWorkerTest {
 
     @Mock
     final Flag flag = new Flag();
+
     private TopOrdersWorker tow;
-    @Mock
-    private TopOrdersWorker mockedTow;
 
     @Before
-    public void setup() throws URISyntaxException {
-        tow = new TopOrdersWorker(new WebSocketClient(new URI(Main.WS_URI)), EnumBook.BTC_MXN.toString(), 10);
+    public void setup() throws URISyntaxException, MalformedURLException {
+        tow = new TopOrdersWorker(new WebSocketClient(new URI(Main.WS_URL)), Main.REST_URL + EnumMessageType.ORDER_BOOK.toString(), EnumBook.BTC_MXN, 10);
     }
 
     @Test
-    public void sortByRateShouldSortByRate() {
-        List<Order> orderList = tow.sortByRate(buildOrderList(), true);
+    public void sortByPriceShouldSortByPrice() {
+        List<Order> orderList = tow.sortByPrice(buildOrderList(), true);
 
-        assertTrue(Double.valueOf(orderList.get(0).getRate()) < Double.valueOf(orderList.get(2).getRate()));
+        assertTrue(Double.valueOf(orderList.get(0).getPrice()) < Double.valueOf(orderList.get(2).getPrice()));
 
-        orderList = tow.sortByRate(orderList, false);
+        orderList = tow.sortByPrice(orderList, false);
 
-        assertFalse(Double.valueOf(orderList.get(0).getRate()) < Double.valueOf(orderList.get(2).getRate()));
+        assertFalse(Double.valueOf(orderList.get(0).getPrice()) < Double.valueOf(orderList.get(2).getPrice()));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class TopOrdersWorkerTest {
         Observer observerDummy = (o, arg) -> {
             assertTrue(arg instanceof Object[]);
             Object[] argAux = (Object[]) arg;
-            List<Order> output = (List<Order>) argAux[1];
+            List<DiffOrder> output = (List<DiffOrder>) argAux[1];
             assertNotEquals(output.size(), 0);
             flag.setFlag(true);
         };
@@ -71,21 +71,17 @@ public class TopOrdersWorkerTest {
 
     private List<Order> buildOrderList() {
         List<Order> orderList = new ArrayList<>();
-        orderList.add(buildOrder("1", Operation.BUY, Status.OPEN, "1"));
-        orderList.add(buildOrder("2", Operation.BUY, Status.OPEN, "2"));
-        orderList.add(buildOrder("3", Operation.BUY, Status.OPEN, "3"));
+        orderList.add(buildOrder("1", "1"));
+        orderList.add(buildOrder("2", "2"));
+        orderList.add(buildOrder("3", "3"));
         return orderList;
     }
 
-    private Order buildOrder(String id, Operation operation, Status status, String rate) {
+    private Order buildOrder(String id, String price) {
         Order order = new Order();
         order.setOrderId(id);
-        order.setRate(rate);
+        order.setPrice(price);
         order.setAmount("1");
-        order.setValue("1");
-        order.setOperation(operation);
-        order.setTime(1l);
-        order.setStatus(status);
         return order;
     }
 }

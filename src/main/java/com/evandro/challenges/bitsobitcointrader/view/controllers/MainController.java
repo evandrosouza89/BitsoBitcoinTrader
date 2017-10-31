@@ -2,8 +2,8 @@ package com.evandro.challenges.bitsobitcointrader.view.controllers;
 
 import com.evandro.challenges.bitsobitcointrader.Main;
 import com.evandro.challenges.bitsobitcointrader.controller.TradingStrategy;
+import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.orderbook.Order;
 import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades.Trade;
-import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.websocket.orders.Order;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.TopOrdersWorker;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -13,8 +13,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -31,28 +29,22 @@ public class MainController implements Observer {
     private TableView<Trade> recentTradesTableView;
 
     @FXML
-    private TableColumn<Order, String> topBidsTimeTableColumn;
-
-    @FXML
-    private TableColumn<Order, String> topBidsRateTableColumn;
+    private TableColumn<Order, String> topBidsPriceTableColumn;
 
     @FXML
     private TableColumn<Order, String> topBidsAmountTableColumn;
 
     @FXML
-    private TableColumn<Order, String> topBidsValueTableColumn;
+    private TableColumn<Order, String> topBidsBookTableColumn;
 
     @FXML
-    private TableColumn<Order, String> topAsksTimeTableColumn;
-
-    @FXML
-    private TableColumn<Order, String> topAsksRateTableColumn;
+    private TableColumn<Order, String> topAsksPriceTableColumn;
 
     @FXML
     private TableColumn<Order, String> topAsksAmountTableColumn;
 
     @FXML
-    private TableColumn<Order, String> topAsksValueTableColumn;
+    private TableColumn<Order, String> topAsksBookTableColumn;
 
     @FXML
     private TableColumn<Trade, String> recentTradesTimeTableColumn;
@@ -100,25 +92,15 @@ public class MainController implements Observer {
     }
 
     private void initializeTopBidsTableView() {
-        topBidsTimeTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-
-                Date.from(Instant.ofEpochMilli(cellData.getValue().getTime()))).asString()
-
-        );
-        topBidsRateTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getRate()));
+        topBidsBookTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getBook()));
+        topBidsPriceTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getPrice()));
         topBidsAmountTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getAmount()));
-        topBidsValueTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getValue()));
     }
 
     private void initializeTopAsksTableView() {
-        topAsksTimeTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-
-                Date.from(Instant.ofEpochMilli(cellData.getValue().getTime()))).asString()
-
-        );
-        topAsksRateTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getRate()));
+        topAsksBookTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getBook()));
+        topAsksPriceTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getPrice()));
         topAsksAmountTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getAmount()));
-        topAsksValueTableColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getValue()));
     }
 
     private void initializeRecentTradesTableView() {

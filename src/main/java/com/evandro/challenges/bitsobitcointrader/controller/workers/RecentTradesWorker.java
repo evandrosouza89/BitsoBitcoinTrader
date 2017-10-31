@@ -1,5 +1,6 @@
 package com.evandro.challenges.bitsobitcointrader.controller.workers;
 
+import com.evandro.challenges.bitsobitcointrader.controller.commons.EnumBook;
 import com.evandro.challenges.bitsobitcointrader.controller.service.json.elements.rest.trades.Trades;
 import com.evandro.challenges.bitsobitcointrader.controller.workers.commons.Worker;
 import com.google.gson.Gson;
@@ -20,51 +21,50 @@ public class RecentTradesWorker extends Worker implements Runnable {
 
     private final Logger logger = LogManager.getLogger();
 
-    private String wsURL;
-
-    private URL url;
-
-    public RecentTradesWorker(String wsURL, String book, int size) throws MalformedURLException {
-        this.wsURL = wsURL;
-        this.book = book;
-        this.size = size;
+    public RecentTradesWorker(String restURL, EnumBook book, int size) throws MalformedURLException {
+        super(restURL, book, size);
         setup();
     }
 
     private void setup() throws MalformedURLException {
         run = true;
         gson = new Gson();
-        wsURL = wsURL.concat("?book=");
-        wsURL = wsURL.concat(book);
-        wsURL = wsURL.concat("&limit=");
-        wsURL = wsURL.concat(String.valueOf(size));
-        url = new URL(wsURL);
+
+        setupRESTURL();
     }
 
-    /*A simple GET request using HttpURLConnection client*/
-    protected void request(HttpURLConnection conn) throws IOException {
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept", "application/json");
-        conn.setRequestProperty("User-Agent", "");
+    private void setupRESTURL() throws MalformedURLException {
+        restURL = restURL.concat("?book=");
+        restURL = restURL.concat(book.toString());
+        restURL = restURL.concat("&limit=");
+        restURL = restURL.concat(String.valueOf(size));
+        url = new URL(restURL);
+    }
 
-        if (conn.getResponseCode() == 200) {
+
+    /*Request recent trades list using HttpURLConnection client*/
+    protected void requestRecentTrades(HttpURLConnection conn) throws IOException {
+        setupHttpGETConnection(conn);
+
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
             Trades trades = gson.fromJson(new InputStreamReader(conn.getInputStream()), Trades.class);
             if (trades != null && trades.getSuccess() != null && trades.getSuccess() && trades.getPayload() != null) {
                 setChanged();
                 notifyObservers(trades.getPayload()); // Feeds TradingStrategy object
             }
         }
+
         conn.disconnect();
     }
 
-    protected void request() throws IOException {
-        request((HttpURLConnection) url.openConnection());
+    protected void requestRecentTrades() throws IOException {
+        requestRecentTrades((HttpURLConnection) url.openConnection());
     }
 
     public void run() {
         while (run) {
             try {
-                request();
+                requestRecentTrades();
                 sleep(5000);
             } catch (Exception e) {
                 logger.warn(e);
