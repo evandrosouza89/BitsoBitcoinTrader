@@ -9,7 +9,22 @@ This is a Bitso (https://bitso.com) bitcoin trader API sample client. It is buil
 - GSON (https://github.com/google/gson) as serialization/deserialization library to convert Java Objects into JSON and back.
 
 ## How to run
-Download **app.rar**, extract files and execute **bitcointrader-1.0-SNAPSHOT-jfx.jar** (Java 8 required).
+Download **app.rar**, extract files (make sure that the jar and lib folder are at the same folder), and execute **bitcointrader-1.0-SNAPSHOT-jfx.jar** (Java 8 required).
+
+## How to run from my IDE
+- Clone or download the project using the "Clone or download" green button above.
+- Import the files into your preferred IDE.
+- Install maven(https://maven.apache.org/download.cgi) and configure it in your IDE.
+- Install lombok plugin (https://projectlombok.org/setup/) to make Lombok's annotations available in your IDE.
+- Run the Main.java class (at this point your IDE automatically reads the pom file and download all the dependencies from pom file).
+
+## How to compile and generate a runnable file
+- Clone or download the project using the "Clone or download" green button above.
+- Import the files into your preferred IDE.
+- Install maven(https://maven.apache.org/download.cgi) and configure it in your IDE.
+- Install lombok plugin (https://projectlombok.org/setup/) to make Lombok's annotations available in your IDE. 
+- Using maven perform a "mvn install" command
+- You should see the generated output under .../target/jfx/app folder
 
 ## About
 
